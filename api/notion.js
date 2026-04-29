@@ -1,19 +1,31 @@
-module.exports = async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+export const config = {
+  runtime: 'edge',
+};
 
-  if (req.method === 'OPTIONS') return res.status(200).end();
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+export default async function handler(req) {
+  if (req.method === 'OPTIONS') {
+    return new Response(null, {
+      status: 200,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type',
+      }
+    });
+  }
+
+  if (req.method !== 'POST') {
+    return new Response(JSON.stringify({ error: 'Method not allowed' }), { status: 405 });
+  }
 
   const TOKEN = process.env.NOTION_TOKEN;
   const DB_ID = process.env.NOTION_DB_ID;
 
   if (!TOKEN || !DB_ID) {
-    return res.status(500).json({ error: 'Variáveis de ambiente não configuradas.' });
+    return new Response(JSON.stringify({ error: 'Variáveis não configuradas.' }), { status: 500 });
   }
 
-  const { bodyText } = req.body;
+  const { bodyText } = await req.json();
 
   const payload = {
     parent: { database_id: DB_ID },
@@ -37,42 +49,33 @@ module.exports = async function handler(req, res) {
   };
 
   try {
-    const https = require('https');
-    const postData = JSON.stringify(payload);
-
-    const result = await new Promise((resolve, reject) => {
-      const options = {
-        hostname: 'api.notion.com',
-        path: '/v1/pages',
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${TOKEN}`,
-          'Notion-Version': '2022-06-28',
-          'Content-Type': 'application/json',
-          'Content-Length': Buffer.byteLength(postData)
-        }
-      };
-
-      const request = https.request(options, (response) => {
-        let data = '';
-        response.on('data', (chunk) => data += chunk);
-        response.on('end', () => {
-          try { resolve(JSON.parse(data)); }
-          catch (e) { reject(new Error('Invalid JSON response')); }
-        });
-      });
-
-      request.on('error', reject);
-      request.write(postData);
-      request.end();
+    const notionRes = await fetch('https://api.notion.com/v1/pages', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${TOKEN}`,
+        'Notion-Version': '2022-06-28',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload)
     });
 
-    if (result.object === 'page') {
-      return res.status(200).json({ success: true });
+    const data = await notionRes.json();
+
+    if (data.object === 'page') {
+      return new Response(JSON.stringify({ success: true }), {
+        status: 200,
+        headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' }
+      });
     } else {
-      return res.status(400).json({ error: result.message || 'Erro ao criar página.' });
+      return new Response(JSON.stringify({ error: data.message || 'Erro ao criar página.' }), {
+        status: 400,
+        headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' }
+      });
     }
   } catch (err) {
-    return res.status(500).json({ error: err.message });
+    return new Response(JSON.stringify({ error: err.message }), {
+      status: 500,
+      headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' }
+    });
   }
-};
+}
