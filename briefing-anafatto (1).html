@@ -9,25 +9,13 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
   --accent: #c9a84c;
-  --fg: #1a1a1a;
-  --fg2: #555;
-  --fg3: #999;
-  --bg: #fff;
-  --bg2: #f7f7f5;
-  --border: rgba(0,0,0,0.1);
-  --border2: rgba(0,0,0,0.2);
-  --r: 8px;
-  --rl: 12px;
+  --fg: #1a1a1a; --fg2: #555; --fg3: #999;
+  --bg: #fff; --bg2: #f7f7f5;
+  --border: rgba(0,0,0,0.1); --border2: rgba(0,0,0,0.2);
+  --r: 8px; --rl: 12px;
 }
 body { font-family: 'DM Sans', sans-serif; background: #f4f3ef; min-height: 100vh; display: flex; justify-content: center; padding: 2rem 1rem 4rem; }
 .wrap { background: #fff; border-radius: 16px; padding: 2.5rem 2rem; max-width: 640px; width: 100%; box-shadow: 0 2px 24px rgba(0,0,0,0.07); }
-.config-screen { text-align: center; padding: 2rem 0; }
-.config-screen h2 { font-family: 'DM Serif Display', serif; font-size: 22px; font-weight: 400; margin-bottom: 8px; }
-.config-screen p { font-size: 13px; color: var(--fg2); margin-bottom: 1.5rem; line-height: 1.6; }
-.config-input { width: 100%; font-size: 14px; font-family: 'DM Sans', sans-serif; background: #fff; border: 0.5px solid var(--border2); border-radius: var(--r); padding: 10px 14px; color: var(--fg); margin-bottom: 12px; }
-.config-input:focus { outline: none; border-color: var(--accent); }
-.btn-config { font-size: 13px; font-family: 'DM Sans', sans-serif; background: var(--fg); color: #fff; border: none; border-radius: var(--r); padding: 10px 24px; cursor: pointer; font-weight: 500; }
-.btn-config:hover { opacity: 0.8; }
 .logo-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 2rem; }
 .logo-dot { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; }
 .logo-text { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--fg3); }
@@ -84,197 +72,158 @@ body { font-family: 'DM Sans', sans-serif; background: #f4f3ef; min-height: 100v
 </head>
 <body>
 <div class="wrap">
+  <div class="logo-bar"><div class="logo-dot"></div><span class="logo-text">Axon Growth — briefing de projeto</span></div>
+  <div class="hero">
+    <h1>Landing page<br>Ana Fatto Concursos</h1>
+    <p>Preencha as informações abaixo para iniciarmos o desenvolvimento.</p>
+  </div>
+  <div class="info-bar">
+    <div class="info-item"><label>Projeto</label><span>Site Ana Fatto Concursos</span></div>
+    <div class="info-item"><label>Concurso / área</label><span>Todos os cursos da empresa</span></div>
+    <div class="info-item"><label>Prazo de entrega</label><span>12/06/2026</span></div>
+    <div class="info-item"><label>Data de lançamento</label><span>15/06/2026</span></div>
+  </div>
+  <div class="prog-wrap">
+    <div class="prog-labels" id="prog-labels"></div>
+    <div class="prog-bar-bg"><div class="prog-bar-fill" id="prog-fill" style="width:0%"></div></div>
+  </div>
 
-  <!-- Tela de configuração — só aparece na primeira vez que TU abres -->
-  <div id="config-screen" style="display:none">
-    <div class="config-screen">
-      <div class="logo-bar" style="justify-content:center"><div class="logo-dot"></div><span class="logo-text">Axon Growth — configuração</span></div>
-      <h2>Configurar integração</h2>
-      <p>Cole o token de integração do Notion abaixo.<br>Fica salvo só neste dispositivo e não aparece no código.</p>
-      <input class="config-input" type="password" id="token-input" placeholder="ntn_...">
-      <br>
-      <button class="btn-config" onclick="salvarToken()">Salvar e continuar</button>
+  <div class="section visible" id="s0">
+    <div class="sec-title">01 — Cursos disponíveis na plataforma</div>
+    <div id="cursos-list"></div>
+    <button class="add-btn" id="add-curso">+ adicionar curso</button>
+    <div class="field"><label>Haverá combo ou pacote com múltiplos cursos?</label>
+      <select id="f-combo"><option value="">Selecione</option><option>Sim</option><option>Não</option></select></div>
+    <div class="field" id="combo-area" style="display:none">
+      <label>Descreva o combo</label>
+      <textarea id="f-combo-desc" placeholder="Quais cursos + qual benefício"></textarea></div>
+  </div>
+
+  <div class="section" id="s1">
+    <div class="sec-title">02 — Apostilas e materiais</div>
+    <div class="field"><label>Haverá apostilas incluídas?</label>
+      <select id="f-apostila"><option value="">Selecione</option><option>Sim, em todos os cursos</option><option>Sim, em alguns cursos</option><option>Não</option></select></div>
+    <div id="apostilas-area" style="display:none">
+      <div id="apostilas-list"></div>
+      <button class="add-btn" id="add-apostila">+ adicionar apostila</button>
+    </div>
+    <div class="field"><label>Materiais bônus (simulados, mapas mentais, extras)</label>
+      <textarea id="f-bonus" placeholder="Descreva o que está incluído além do curso principal..."></textarea></div>
+    <div class="field"><label>Formato dos materiais</label>
+      <select id="f-formato"><option value="">Selecione</option><option>Digital (PDF / plataforma)</option><option>Físico (Correios)</option><option>Ambos</option></select></div>
+  </div>
+
+  <div class="section" id="s2">
+    <div class="sec-title">03 — Preços e formas de pagamento</div>
+    <div id="precos-list"></div>
+    <button class="add-btn" id="add-preco">+ adicionar produto / preço</button>
+    <div class="field-row">
+      <div class="field"><label>Plataforma de checkout</label>
+        <select id="f-checkout"><option value="">Selecione</option><option>Hotmart</option><option>Kiwify</option><option>Eduzz</option><option>Monetizze</option><option>Própria</option><option>Outro</option></select></div>
+      <div class="field"><label>Garantia de reembolso</label>
+        <select id="f-garantia"><option value="">Selecione</option><option>7 dias</option><option>15 dias</option><option>30 dias</option><option>Sem garantia</option></select></div>
+    </div>
+    <div class="field"><label>Cupom ou promoção ativa</label>
+      <input type="text" id="f-cupom" placeholder="Ex: CURSO30 — 30% desconto até 15/06"></div>
+  </div>
+
+  <div class="section" id="s3">
+    <div class="sec-title">04 — Identidade visual e referências</div>
+    <div class="field-row">
+      <div class="field"><label>Tem logo em alta resolução?</label>
+        <select id="f-logo"><option value="">Selecione</option><option>Sim</option><option>Não, precisa ser criado</option></select></div>
+      <div class="field"><label>Tem paleta de cores definida?</label>
+        <select id="f-cores"><option value="">Selecione</option><option>Sim</option><option>Não, pode sugerir</option></select></div>
+    </div>
+    <div class="field"><label>Cores da marca</label>
+      <input type="text" id="f-paleta" placeholder="Ex: azul marinho #0A1F44, dourado #C9A84C"></div>
+    <div class="field"><label>Tem foto ou vídeo da professora?</label>
+      <select id="f-foto"><option value="">Selecione</option><option>Sim, tenho fotos</option><option>Sim, tenho vídeo</option><option>Sim, tenho os dois</option><option>Não tenho nada</option></select></div>
+    <div class="field"><label>Link de referência — LP que gosta</label>
+      <input type="url" id="f-ref1" placeholder="https://"></div>
+    <div class="field"><label>Segundo link (opcional)</label>
+      <input type="url" id="f-ref2" placeholder="https://"></div>
+    <div class="field"><label>O que não quer na LP</label>
+      <textarea id="f-naoquero" placeholder="Ex: não quero fundo escuro, não quero muito texto..."></textarea></div>
+  </div>
+
+  <div class="section" id="s4">
+    <div class="sec-title">05 — Prova social e autoridade</div>
+    <div class="field"><label>Tem depoimentos de alunos aprovados?</label>
+      <select id="f-depo"><option value="">Selecione</option><option>Sim, em vídeo</option><option>Sim, em texto / print</option><option>Não tenho ainda</option></select></div>
+    <div class="field-row">
+      <div class="field"><label>Alunos na plataforma (aprox.)</label>
+        <input type="number" id="f-alunos" placeholder="Ex: 1200"></div>
+      <div class="field"><label>Aprovados que pode destacar</label>
+        <input type="number" id="f-aprovados" placeholder="Ex: 340"></div>
+    </div>
+    <div class="field"><label>Redes sociais (perfil + seguidores)</label>
+      <input type="text" id="f-redes" placeholder="Ex: @anafatto — 12k no Instagram"></div>
+    <div class="field"><label>Menção na mídia, prêmio ou certificação</label>
+      <textarea id="f-midia" placeholder="Ex: parceira do TEC Concursos, mencionada no G1..."></textarea></div>
+  </div>
+
+  <div class="section" id="s5">
+    <div class="sec-title">06 — Fluxo de conversão</div>
+    <div class="field"><label>Objetivo principal da LP</label>
+      <select id="f-objetivo"><option value="">Selecione</option><option>Vender direto (checkout)</option><option>Capturar lead (WhatsApp / e-mail)</option><option>Ambos</option></select></div>
+    <div class="field"><label>Após clicar no botão, o usuário vai para onde?</label>
+      <input type="text" id="f-destino" placeholder="Ex: direto para o Hotmart / formulário WhatsApp"></div>
+    <div class="field"><label>Terá WhatsApp de suporte na página?</label>
+      <select id="f-wpp"><option value="">Selecione</option><option>Sim</option><option>Não</option></select></div>
+    <div class="field" id="wpp-num-area" style="display:none">
+      <label>Número do WhatsApp</label>
+      <input type="tel" id="f-wpp-num" placeholder="(54) 9 9999-9999"></div>
+    <div class="field"><label>Haverá urgência na página?</label>
+      <select id="f-urgencia"><option value="">Selecione</option><option>Sim, contador de tempo</option><option>Sim, vagas limitadas</option><option>Não</option></select></div>
+    <div class="status" id="status"></div>
+  </div>
+
+  <div class="section" id="s6">
+    <div class="done-screen">
+      <div style="font-size:40px;margin-bottom:1rem">✓</div>
+      <h2>Briefing enviado com sucesso</h2>
+      <p>As informações foram recebidas pela equipe da Axon Growth.<br>Entraremos em contato em breve para iniciar o projeto.</p>
     </div>
   </div>
 
-  <!-- Formulário principal -->
-  <div id="form-main" style="display:none">
-    <div class="logo-bar"><div class="logo-dot"></div><span class="logo-text">Axon Growth — briefing de projeto</span></div>
-    <div class="hero">
-      <h1>Landing page<br>Ana Fatto Concursos</h1>
-      <p>Preencha as informações abaixo para iniciarmos o desenvolvimento.</p>
-    </div>
-    <div class="info-bar">
-      <div class="info-item"><label>Projeto</label><span>Site Ana Fatto Concursos</span></div>
-      <div class="info-item"><label>Concurso / área</label><span>Todos os cursos da empresa</span></div>
-      <div class="info-item"><label>Prazo de entrega</label><span>12/06/2026</span></div>
-      <div class="info-item"><label>Data de lançamento</label><span>15/06/2026</span></div>
-    </div>
-    <div class="prog-wrap">
-      <div class="prog-labels" id="prog-labels"></div>
-      <div class="prog-bar-bg"><div class="prog-bar-fill" id="prog-fill" style="width:0%"></div></div>
-    </div>
-
-    <div class="section visible" id="s0">
-      <div class="sec-title">01 — Cursos disponíveis na plataforma</div>
-      <div id="cursos-list"></div>
-      <button class="add-btn" id="add-curso">+ adicionar curso</button>
-      <div class="field"><label>Haverá combo ou pacote com múltiplos cursos?</label>
-        <select id="f-combo"><option value="">Selecione</option><option>Sim</option><option>Não</option></select></div>
-      <div class="field" id="combo-area" style="display:none">
-        <label>Descreva o combo</label>
-        <textarea id="f-combo-desc" placeholder="Quais cursos + qual benefício"></textarea></div>
-    </div>
-
-    <div class="section" id="s1">
-      <div class="sec-title">02 — Apostilas e materiais</div>
-      <div class="field"><label>Haverá apostilas incluídas?</label>
-        <select id="f-apostila"><option value="">Selecione</option><option>Sim, em todos os cursos</option><option>Sim, em alguns cursos</option><option>Não</option></select></div>
-      <div id="apostilas-area" style="display:none">
-        <div id="apostilas-list"></div>
-        <button class="add-btn" id="add-apostila">+ adicionar apostila</button>
-      </div>
-      <div class="field"><label>Materiais bônus (simulados, mapas mentais, extras)</label>
-        <textarea id="f-bonus" placeholder="Descreva o que está incluído além do curso principal..."></textarea></div>
-      <div class="field"><label>Formato dos materiais</label>
-        <select id="f-formato"><option value="">Selecione</option><option>Digital (PDF / plataforma)</option><option>Físico (Correios)</option><option>Ambos</option></select></div>
-    </div>
-
-    <div class="section" id="s2">
-      <div class="sec-title">03 — Preços e formas de pagamento</div>
-      <div id="precos-list"></div>
-      <button class="add-btn" id="add-preco">+ adicionar produto / preço</button>
-      <div class="field-row">
-        <div class="field"><label>Plataforma de checkout</label>
-          <select id="f-checkout"><option value="">Selecione</option><option>Hotmart</option><option>Kiwify</option><option>Eduzz</option><option>Monetizze</option><option>Própria</option><option>Outro</option></select></div>
-        <div class="field"><label>Garantia de reembolso</label>
-          <select id="f-garantia"><option value="">Selecione</option><option>7 dias</option><option>15 dias</option><option>30 dias</option><option>Sem garantia</option></select></div>
-      </div>
-      <div class="field"><label>Cupom ou promoção ativa</label>
-        <input type="text" id="f-cupom" placeholder="Ex: CURSO30 — 30% desconto até 15/06"></div>
-    </div>
-
-    <div class="section" id="s3">
-      <div class="sec-title">04 — Identidade visual e referências</div>
-      <div class="field-row">
-        <div class="field"><label>Tem logo em alta resolução?</label>
-          <select id="f-logo"><option value="">Selecione</option><option>Sim</option><option>Não, precisa ser criado</option></select></div>
-        <div class="field"><label>Tem paleta de cores definida?</label>
-          <select id="f-cores"><option value="">Selecione</option><option>Sim</option><option>Não, pode sugerir</option></select></div>
-      </div>
-      <div class="field"><label>Cores da marca</label>
-        <input type="text" id="f-paleta" placeholder="Ex: azul marinho #0A1F44, dourado #C9A84C"></div>
-      <div class="field"><label>Tem foto ou vídeo da professora?</label>
-        <select id="f-foto"><option value="">Selecione</option><option>Sim, tenho fotos</option><option>Sim, tenho vídeo</option><option>Sim, tenho os dois</option><option>Não tenho nada</option></select></div>
-      <div class="field"><label>Link de referência — LP que gosta</label>
-        <input type="url" id="f-ref1" placeholder="https://"></div>
-      <div class="field"><label>Segundo link (opcional)</label>
-        <input type="url" id="f-ref2" placeholder="https://"></div>
-      <div class="field"><label>O que não quer na LP</label>
-        <textarea id="f-naoquero" placeholder="Ex: não quero fundo escuro, não quero muito texto..."></textarea></div>
-    </div>
-
-    <div class="section" id="s4">
-      <div class="sec-title">05 — Prova social e autoridade</div>
-      <div class="field"><label>Tem depoimentos de alunos aprovados?</label>
-        <select id="f-depo"><option value="">Selecione</option><option>Sim, em vídeo</option><option>Sim, em texto / print</option><option>Não tenho ainda</option></select></div>
-      <div class="field-row">
-        <div class="field"><label>Alunos na plataforma (aprox.)</label>
-          <input type="number" id="f-alunos" placeholder="Ex: 1200"></div>
-        <div class="field"><label>Aprovados que pode destacar</label>
-          <input type="number" id="f-aprovados" placeholder="Ex: 340"></div>
-      </div>
-      <div class="field"><label>Redes sociais (perfil + seguidores)</label>
-        <input type="text" id="f-redes" placeholder="Ex: @anafatto — 12k no Instagram"></div>
-      <div class="field"><label>Menção na mídia, prêmio ou certificação</label>
-        <textarea id="f-midia" placeholder="Ex: parceira do TEC Concursos, mencionada no G1..."></textarea></div>
-    </div>
-
-    <div class="section" id="s5">
-      <div class="sec-title">06 — Fluxo de conversão</div>
-      <div class="field"><label>Objetivo principal da LP</label>
-        <select id="f-objetivo"><option value="">Selecione</option><option>Vender direto (checkout)</option><option>Capturar lead (WhatsApp / e-mail)</option><option>Ambos</option></select></div>
-      <div class="field"><label>Após clicar no botão, o usuário vai para onde?</label>
-        <input type="text" id="f-destino" placeholder="Ex: direto para o Hotmart / formulário WhatsApp"></div>
-      <div class="field"><label>Terá WhatsApp de suporte na página?</label>
-        <select id="f-wpp"><option value="">Selecione</option><option>Sim</option><option>Não</option></select></div>
-      <div class="field" id="wpp-num-area" style="display:none">
-        <label>Número do WhatsApp</label>
-        <input type="tel" id="f-wpp-num" placeholder="(54) 9 9999-9999"></div>
-      <div class="field"><label>Haverá urgência na página?</label>
-        <select id="f-urgencia"><option value="">Selecione</option><option>Sim, contador de tempo</option><option>Sim, vagas limitadas</option><option>Não</option></select></div>
-      <div class="status" id="status"></div>
-    </div>
-
-    <div class="section" id="s6">
-      <div class="done-screen">
-        <div style="font-size:40px;margin-bottom:1rem">✓</div>
-        <h2>Briefing enviado com sucesso</h2>
-        <p>As informações foram recebidas pela equipe da Axon Growth.<br>Entraremos em contato em breve para iniciar o projeto.</p>
-      </div>
-    </div>
-
-    <div class="nav" id="nav-bar">
-      <span class="nav-step" id="nav-step"></span>
-      <div class="nav-btns">
-        <button class="btn-back" id="btn-back" onclick="goBack()">Voltar</button>
-        <button class="btn-next" id="btn-next" onclick="goNext()">Continuar</button>
-      </div>
+  <div class="nav" id="nav-bar">
+    <span class="nav-step" id="nav-step"></span>
+    <div class="nav-btns">
+      <button class="btn-back" id="btn-back" onclick="goBack()">Voltar</button>
+      <button class="btn-next" id="btn-next" onclick="goNext()">Continuar</button>
     </div>
   </div>
 </div>
 
 <script>
-const DB_ID = '350cd440497780439a2cd2d446fe8179';
-const STORAGE_KEY = 'axon_notion_token';
 const TOTAL = 7;
 const LABELS = ['Cursos','Apostilas','Preços','Visual','Autoridade','Conversão'];
-let current = 0;
-let cursoCount = 0, apCount = 0, precoCount = 0;
+let current = 0, cursoCount = 0, apCount = 0, precoCount = 0;
 
-function getToken() { return localStorage.getItem(STORAGE_KEY) || ''; }
+const pl = document.getElementById('prog-labels');
+LABELS.forEach((l, i) => {
+  const s = document.createElement('span');
+  s.className = 'prog-label'; s.textContent = l; s.id = 'pl' + i;
+  pl.appendChild(s);
+});
 
-function salvarToken() {
-  const val = document.getElementById('token-input').value.trim();
-  if (!val) return;
-  localStorage.setItem(STORAGE_KEY, val);
-  mostrarFormulario();
-}
+document.getElementById('add-curso').addEventListener('click', addCurso);
+document.getElementById('add-apostila').addEventListener('click', addApostila);
+document.getElementById('add-preco').addEventListener('click', addPreco);
+document.getElementById('f-combo').addEventListener('change', function() {
+  document.getElementById('combo-area').style.display = this.value === 'Sim' ? 'block' : 'none';
+});
+document.getElementById('f-apostila').addEventListener('change', function() {
+  const show = this.value && this.value !== 'Não';
+  document.getElementById('apostilas-area').style.display = show ? 'block' : 'none';
+  if (show && apCount === 0) addApostila();
+});
+document.getElementById('f-wpp').addEventListener('change', function() {
+  document.getElementById('wpp-num-area').style.display = this.value === 'Sim' ? 'block' : 'none';
+});
 
-function init() {
-  if (getToken()) mostrarFormulario();
-  else document.getElementById('config-screen').style.display = 'block';
-}
-
-function mostrarFormulario() {
-  document.getElementById('config-screen').style.display = 'none';
-  document.getElementById('form-main').style.display = 'block';
-
-  const pl = document.getElementById('prog-labels');
-  LABELS.forEach((l, i) => {
-    const s = document.createElement('span');
-    s.className = 'prog-label'; s.textContent = l; s.id = 'pl' + i;
-    pl.appendChild(s);
-  });
-
-  document.getElementById('add-curso').addEventListener('click', addCurso);
-  document.getElementById('add-apostila').addEventListener('click', addApostila);
-  document.getElementById('add-preco').addEventListener('click', addPreco);
-  document.getElementById('f-combo').addEventListener('change', function() {
-    document.getElementById('combo-area').style.display = this.value === 'Sim' ? 'block' : 'none';
-  });
-  document.getElementById('f-apostila').addEventListener('change', function() {
-    const show = this.value && this.value !== 'Não';
-    document.getElementById('apostilas-area').style.display = show ? 'block' : 'none';
-    if (show && apCount === 0) addApostila();
-  });
-  document.getElementById('f-wpp').addEventListener('change', function() {
-    document.getElementById('wpp-num-area').style.display = this.value === 'Sim' ? 'block' : 'none';
-  });
-
-  addCurso(); addPreco();
-  updateUI();
-}
+addCurso(); addPreco(); updateUI();
 
 function updateUI() {
   for (let i = 0; i < TOTAL; i++) {
@@ -350,33 +299,27 @@ function addPreco() {
 
 function v(id) { return (document.getElementById(id)?.value || '').trim(); }
 
-function coletarCursos() {
-  return Array.from(document.querySelectorAll('#cursos-list .card')).map((c,i) =>
+function buildText() {
+  const cursos = Array.from(document.querySelectorAll('#cursos-list .card')).map((c,i) =>
     `Curso ${i+1}: ${c.querySelector('.c-nome')?.value||''} | ${c.querySelector('.c-carga')?.value||''} | ${c.querySelector('.c-modal')?.value||''}\n${c.querySelector('.c-desc')?.value||''}`
   ).join('\n\n');
-}
-function coletarApostilas() {
-  return Array.from(document.querySelectorAll('#apostilas-list .card')).map((c,i) =>
+  const apostilas = Array.from(document.querySelectorAll('#apostilas-list .card')).map((c,i) =>
     `Apostila ${i+1}: ${c.querySelector('.a-nome')?.value||''} | ${c.querySelector('.a-pag')?.value||''}p | Curso: ${c.querySelector('.a-curso')?.value||''}`
   ).join('\n');
-}
-function coletarPrecos() {
-  return Array.from(document.querySelectorAll('#precos-list .card')).map((c,i) =>
+  const precos = Array.from(document.querySelectorAll('#precos-list .card')).map((c,i) =>
     `Produto ${i+1}: ${c.querySelector('.p-nome')?.value||''}\nR$${c.querySelector('.p-cheio')?.value||''} | Promo: R$${c.querySelector('.p-promo')?.value||''} | ${c.querySelector('.p-parc')?.value||''}x R$${c.querySelector('.p-parcval')?.value||''} | PIX: ${c.querySelector('.p-pix')?.value||''}`
   ).join('\n\n');
-}
 
-function buildText() {
   return [
     '## Dados do projeto',
     'Projeto: Site Ana Fatto Concursos | Área: Todos os cursos da empresa',
     'Prazo: 12/06/2026 | Lançamento: 15/06/2026',
-    '', '## 01 — Cursos', coletarCursos(),
+    '', '## 01 — Cursos', cursos,
     `Combo: ${v('f-combo')} — ${v('f-combo-desc')}`,
     '', '## 02 — Apostilas',
-    `Apostilas: ${v('f-apostila')}`, coletarApostilas(),
+    `Apostilas: ${v('f-apostila')}`, apostilas,
     `Bônus: ${v('f-bonus')}`, `Formato: ${v('f-formato')}`,
-    '', '## 03 — Preços', coletarPrecos(),
+    '', '## 03 — Preços', precos,
     `Checkout: ${v('f-checkout')} | Garantia: ${v('f-garantia')} | Cupom: ${v('f-cupom')}`,
     '', '## 04 — Visual',
     `Logo: ${v('f-logo')} | Cores: ${v('f-cores')} | Paleta: ${v('f-paleta')}`,
@@ -396,43 +339,26 @@ async function enviar() {
   const btn = document.getElementById('btn-next');
   const statusEl = document.getElementById('status');
   btn.disabled = true; btn.textContent = 'Enviando...';
-  statusEl.className = 'status loading'; statusEl.textContent = 'Conectando ao Notion...';
-
-  const token = getToken();
-  const bodyText = buildText();
-  const payload = {
-    parent: { database_id: DB_ID },
-    properties: { title: { title: [{ type: 'text', text: { content: 'Briefing — Site Ana Fatto Concursos' } }] } },
-    children: [
-      { object: 'block', type: 'paragraph', paragraph: { rich_text: [{ type: 'text', text: { content: bodyText.slice(0, 2000) } }] } },
-      ...(bodyText.length > 2000 ? [{ object: 'block', type: 'paragraph', paragraph: { rich_text: [{ type: 'text', text: { content: bodyText.slice(2000, 4000) } }] } }] : [])
-    ]
-  };
+  statusEl.className = 'status loading'; statusEl.textContent = 'Enviando para o Notion...';
 
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    const res = await fetch('/api/notion', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        system: `You are an API proxy helper. Forward this payload to the Notion API. POST to https://api.notion.com/v1/pages with headers: Authorization: Bearer ${token}, Notion-Version: 2022-06-28, Content-Type: application/json. Return only the raw JSON response.`,
-        messages: [{ role: 'user', content: `Forward this payload to Notion API:\n${JSON.stringify(payload)}` }]
-      })
+      body: JSON.stringify({ bodyText: buildText() })
     });
     const data = await res.json();
-    const responseText = data.content?.map(b => b.text || '').join('') || '';
-    if (responseText.includes('"object":"page"') || responseText.includes('"object": "page"')) {
+    if (data.success) {
       current = TOTAL - 1; updateUI();
-    } else { throw new Error('Resposta inesperada.'); }
+    } else {
+      throw new Error(data.error || 'Erro desconhecido.');
+    }
   } catch (err) {
     statusEl.className = 'status err';
     statusEl.textContent = 'Erro ao salvar. Tente novamente ou contacte a Axon.';
     btn.disabled = false; btn.textContent = 'Tentar novamente';
   }
 }
-
-init();
 </script>
 </body>
 </html>
