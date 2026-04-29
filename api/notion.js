@@ -22,7 +22,7 @@ export default async function handler(req) {
   const DB_ID = process.env.NOTION_DB_ID;
 
   if (!TOKEN || !DB_ID) {
-    return new Response(JSON.stringify({ error: 'Variáveis não configuradas.' }), { status: 500 });
+    return new Response(JSON.stringify({ error: 'Variaveis nao configuradas.' }), { status: 500 });
   }
 
   const { bodyText } = await req.json();
@@ -31,7 +31,7 @@ export default async function handler(req) {
     parent: { database_id: DB_ID },
     properties: {
       title: {
-        title: [{ type: 'text', text: { content: 'Briefing — Site Ana Fatto Concursos' } }]
+        title: [{ type: 'text', text: { content: 'Briefing - Site Ana Fatto Concursos' } }]
       }
     },
     children: [
@@ -48,34 +48,27 @@ export default async function handler(req) {
     ]
   };
 
-  try {
-    const notionRes = await fetch('https://api.notion.com/v1/pages', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${TOKEN}`,
-        'Notion-Version': '2022-06-28',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload)
-    });
+  const notionRes = await fetch('https://api.notion.com/v1/pages', {
+    method: 'POST',
+    headers: {
+      'Authorization': 'Bearer ' + TOKEN,
+      'Notion-Version': '2022-06-28',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload)
+  });
 
-    const data = await notionRes.json();
+  const data = await notionRes.json();
 
-    if (data.object === 'page') {
-      return new Response(JSON.stringify({ success: true }), {
-        status: 200,
-        headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' }
-      });
-    } else {
-      return new Response(JSON.stringify({ error: data.message || 'Erro ao criar página.' }), {
-        status: 400,
-        headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' }
-      });
-    }
-  } catch (err) {
-    return new Response(JSON.stringify({ error: err.message }), {
-      status: 500,
+  if (data.object === 'page') {
+    return new Response(JSON.stringify({ success: true }), {
+      status: 200,
       headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' }
     });
   }
+
+  return new Response(JSON.stringify({ error: data.message || 'Erro ao criar pagina.' }), {
+    status: 400,
+    headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' }
+  });
 }
