@@ -1,4 +1,4 @@
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -37,24 +37,42 @@ export default async function handler(req, res) {
   };
 
   try {
-    const notionRes = await fetch('https://api.notion.com/v1/pages', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${TOKEN}`,
-        'Notion-Version': '2022-06-28',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(payload)
+    const https = require('https');
+    const postData = JSON.stringify(payload);
+
+    const result = await new Promise((resolve, reject) => {
+      const options = {
+        hostname: 'api.notion.com',
+        path: '/v1/pages',
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${TOKEN}`,
+          'Notion-Version': '2022-06-28',
+          'Content-Type': 'application/json',
+          'Content-Length': Buffer.byteLength(postData)
+        }
+      };
+
+      const request = https.request(options, (response) => {
+        let data = '';
+        response.on('data', (chunk) => data += chunk);
+        response.on('end', () => {
+          try { resolve(JSON.parse(data)); }
+          catch (e) { reject(new Error('Invalid JSON response')); }
+        });
+      });
+
+      request.on('error', reject);
+      request.write(postData);
+      request.end();
     });
 
-    const data = await notionRes.json();
-
-    if (data.object === 'page') {
+    if (result.object === 'page') {
       return res.status(200).json({ success: true });
     } else {
-      return res.status(400).json({ error: data.message || 'Erro ao criar página no Notion.' });
+      return res.status(400).json({ error: result.message || 'Erro ao criar página.' });
     }
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }
-}
+};
